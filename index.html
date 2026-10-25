@@ -8,7 +8,12 @@
   body { font-family: -apple-system, system-ui, sans-serif; max-width: 760px; margin: 0 auto; padding: 16px; background: #f7f7f5; color: #222; }
   h1 { margin-bottom: 4px; }
   .sub { color: #666; margin-top: 0; }
-  .ide { background: #fff; border-radius: 10px; padding: 14px 16px; margin: 12px 0; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .ide, details { background: #fff; border-radius: 10px; padding: 14px 16px; margin: 12px 0; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  summary { cursor: pointer; font-weight: 600; }
+  #kriterier-tekst { font-size: 14px; }
+  #kriterier-tekst h1 { font-size: 18px; }
+  #kriterier-tekst h2 { font-size: 15px; margin-bottom: 2px; }
+  #kriterier-tekst p { margin-top: 2px; }
   .rad { display: flex; align-items: center; gap: 14px; }
   .score { font-size: 26px; font-weight: 700; min-width: 56px; text-align: center; border-radius: 8px; padding: 6px 0; color: #fff; }
   .tittel { font-size: 18px; font-weight: 600; }
@@ -23,6 +28,10 @@
 <body>
 <h1>Idébank</h1>
 <p class="sub">Ideer vi kan gjøre sammen – rangert av Claude etter kriteriene våre.</p>
+<details>
+  <summary>Slik vurderer Claude ideene</summary>
+  <div id="kriterier-tekst">Laster …</div>
+</details>
 <div id="liste">Laster …</div>
 <script>
 const eier = location.hostname.split('.')[0];
@@ -57,6 +66,17 @@ async function visBegrunnelse(nr, knapp) {
   knapp.textContent = 'Skjul begrunnelse';
 }
 
+async function hentKriterier() {
+  const boks = document.getElementById('kriterier-tekst');
+  try {
+    const r = await fetch(api + '/contents/kriterier.md', { headers: { Accept: 'application/vnd.github.html+json' } });
+    if (!r.ok) throw new Error();
+    boks.innerHTML = await r.text();
+  } catch (e) {
+    boks.textContent = 'Klarte ikke å hente kriteriene.';
+  }
+}
+
 async function last() {
   const liste = document.getElementById('liste');
   try {
@@ -82,6 +102,8 @@ async function last() {
     liste.textContent = 'Klarte ikke å hente ideer (' + e.message + '). Prøv igjen om litt.';
   }
 }
+
+hentKriterier();
 last();
 </script>
 </body>
