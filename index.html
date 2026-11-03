@@ -61,7 +61,8 @@ async function visBegrunnelse(nr, knapp) {
   boks.textContent = 'Henter …';
   const r = await fetch(api + '/issues/' + nr + '/comments', { headers: { Accept: 'application/vnd.github.html+json' } });
   const kommentarer = await r.json();
-  const k = kommentarer.reverse().find(c => (c.body_html || '').includes('Score'));
+  // Nyeste vurdering fra Claude (starter med **Score: …**), ikke vanlige kommentarer
+  const k = kommentarer.reverse().find(c => /<strong>Score:/.test(c.body_html || ''));
   boks.innerHTML = k ? k.body_html : 'Ingen begrunnelse ennå.';
   knapp.textContent = 'Skjul begrunnelse';
 }
